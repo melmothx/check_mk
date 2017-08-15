@@ -16,7 +16,6 @@ while (my $l = <STDIN>) {
 
 my %global;
 my @messages;
-my $block;
 foreach my $l (@input) {
     chomp $l;
     if ($l) {
@@ -78,19 +77,19 @@ foreach my $msg (@messages) {
     }
 }
 
-print Dumper(\%global);
-
 foreach my $userkey (keys %notify) {
     my $body = join("\n", @{$notify{$userkey}{msgs}});
     my $title = join(" - ", sort keys %{$notify{$userkey}{hosts}}, sort keys %{$notify{$userkey}{services}});
     my $priority = $notify{$userkey}{priority};
-    print "Notifying $userkey for $title\n$body\n(priority $priority)\n";
-    $ua->post('https://api.pushover.net/1/messages' => {
-                                                        token => $api_key,
-                                                        user => $userkey,
-                                                        title => $title,
-                                                        message => $body,
-                                                        priority => $priority,
-                                                       });
+    # print "Notifying $userkey for $title\n$body\n(priority $priority)\n";
+    # fire and forget
+    my $res = $ua->post('https://api.pushover.net/1/messages' => {
+                                                                  token => $api_key,
+                                                                  user => $userkey,
+                                                                  title => $title,
+                                                                  message => $body,
+                                                                  priority => $priority,
+                                                                 });
+    warn Dumper($res) unless $res->is_success;
 }
 
